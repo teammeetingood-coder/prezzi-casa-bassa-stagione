@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Prezzi Bassa">
+<title>Prezzi Bassa Stagione</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #e8eff5; --card: #f8fbfd; --accent: #3a6fa0; --accent-light: #d0e4f0;
+    --text: #182030; --muted: #6a7f95; --border: #ccdae6;
+    --green: #3a7a5a; --green-light: #dff0e8;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 0 40px; }
+  header { background: var(--text); color: var(--bg); padding: 28px 24px 22px; position: relative; overflow: hidden; }
+  header::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 20px; background: var(--bg); border-radius: 20px 20px 0 0; }
+  header h1 { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; letter-spacing: -0.3px; line-height: 1.2; }
+  header p { font-size: 13px; color: #8098b0; margin-top: 4px; font-weight: 300; }
+  .container { padding: 8px 20px 0; }
+  .card { background: var(--card); border-radius: 20px; padding: 22px; border: 1px solid var(--border); margin-bottom: 14px; }
+  .card-title { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+  .slider-row { margin-bottom: 20px; }
+  .slider-row:last-child { margin-bottom: 0; }
+  .slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .slider-label { font-size: 15px; font-weight: 400; }
+  .slider-value { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--accent); }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: var(--border); border-radius: 2px; outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 3px solid var(--card); box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+  input[type=range]::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 3px solid var(--card); }
+  .tick-row { display: flex; justify-content: space-between; margin-top: 5px; padding: 0 2px; }
+  .tick { font-size: 11px; color: var(--muted); }
+  .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .result-box { background: var(--card); border-radius: 16px; padding: 16px; border: 1px solid var(--border); text-align: center; }
+  .result-box.accent { background: var(--text); border-color: var(--text); grid-column: 1 / -1; }
+  .result-box.long-stay { background: var(--green-light); border-color: #b0ddc4; grid-column: 1 / -1; }
+  .result-label { font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+  .result-box.accent .result-label { color: #6a8aaa; }
+  .result-box.long-stay .result-label { color: var(--green); }
+  .result-amount { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--text); line-height: 1; }
+  .result-box.accent .result-amount { color: #fff; font-size: 38px; }
+  .result-box.long-stay .result-amount { color: var(--green); }
+  .result-sub { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 300; }
+  .result-box.accent .result-sub { color: #6a8aaa; }
+  .result-box.long-stay .result-sub { color: var(--green); font-weight: 400; }
+  .table-card { background: var(--card); border-radius: 20px; border: 1px solid var(--border); overflow: hidden; }
+  .table-header { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; padding: 12px 16px; background: var(--bg); border-bottom: 1px solid var(--border); }
+  .table-header span { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .table-header span:not(:first-child) { text-align: right; }
+  .table-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; padding: 13px 16px; border-bottom: 1px solid var(--border); }
+  .table-row:last-child { border-bottom: none; }
+  .table-row.active { background: var(--accent-light); }
+  .table-row span { font-size: 14px; }
+  .table-row span:not(:first-child) { text-align: right; }
+  .table-row.active span { color: var(--accent); font-weight: 500; }
+  .guests-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 14px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: none; }
+  .table-row.active .dot { display: block; }
+  .note { font-size: 12px; color: var(--muted); text-align: center; margin-top: 14px; padding: 0 10px; line-height: 1.6; font-weight: 300; }
+  .season-badge { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; background: #2a3f55; color: #8098b0; padding: 4px 10px; border-radius: 99px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Prezzi Casa Vacanza</h1>
+  <p>€135 base · +€10 per ogni ospite extra</p>
+  <span class="season-badge">Bassa stagione</span>
+</header>
+<div class="container">
+  <div class="card">
+    <div class="card-title">Configura il soggiorno</div>
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="slider-label">Ospiti</span>
+        <span class="slider-value" id="guests-val">2</span>
+      </div>
+      <input type="range" min="2" max="8" value="2" step="1" id="guests" oninput="update()">
+      <div class="tick-row">
+        <span class="tick">2</span><span class="tick">3</span><span class="tick">4</span>
+        <span class="tick">5</span><span class="tick">6</span><span class="tick">7</span>
+        <span class="tick">8</span>
+      </div>
+    </div>
+    <div class="slider-row">
+      <div class="slider-header">
+        <span class="slider-label">Notti</span>
+        <span class="slider-value" id="nights-val">2</span>
+      </div>
+      <input type="range" min="2" max="30" value="2" step="1" id="nights" oninput="update()">
+      <div class="tick-row">
+        <span class="tick">2</span><span class="tick">7</span><span class="tick">14</span>
+        <span class="tick">21</span><span class="tick">30</span>
+      </div>
+    </div>
+  </div>
+  <div class="results-grid" id="results-grid">
+    <div class="result-box accent">
+      <div class="result-label">Totale soggiorno</div>
+      <div class="result-amount" id="res-total">€270</div>
+      <div class="result-sub" id="res-total-sub">2 notti × €135</div>
+    </div>
+    <div class="result-box">
+      <div class="result-label">Per notte</div>
+      <div class="result-amount" id="res-night">€135</div>
+      <div class="result-sub" id="res-night-sub">tariffa base</div>
+    </div>
+    <div class="result-box">
+      <div class="result-label">Per ospite/notte</div>
+      <div class="result-amount" id="res-pp">€68</div>
+      <div class="result-sub">a persona</div>
+    </div>
+  </div>
+  <div class="table-card">
+    <div class="table-header">
+      <span>Ospiti</span><span>Notte</span><span>Extra</span><span>A testa</span>
+    </div>
+    <div id="tbody"></div>
+  </div>
+  <p class="note">Minimo 2 notti · Soggiorni oltre 7 notti: −15% sul totale</p>
+</div>
+<script>
+const BASE = 135;
+const EXTRA = 10;
+function nightlyPrice(g) { return BASE + (g - 2) * EXTRA; }
+function buildTable(activeGuests) {
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  for (let g = 2; g <= 8; g++) {
+    const price = nightlyPrice(g);
+    const pp = Math.round(price / g);
+    const extraAmt = g === 2 ? '—' : '+€' + ((g - 2) * EXTRA);
+    const row = document.createElement('div');
+    row.className = 'table-row' + (g === activeGuests ? ' active' : '');
+    row.innerHTML = '<span class="guests-pill"><span class="dot"></span>' + g + ' ospiti</span><span>€' + price + '</span><span>' + extraAmt + '</span><span>€' + pp + '</span>';
+    tbody.appendChild(row);
+  }
+}
+function update() {
+  const guests = parseInt(document.getElementById('guests').value);
+  const nights = parseInt(document.getElementById('nights').value);
+  document.getElementById('guests-val').textContent = guests;
+  document.getElementById('nights-val').textContent = nights;
+  const nightly = nightlyPrice(guests);
+  const total = nightly * nights;
+  const longStay = nights > 7;
+  const finalTotal = longStay ? Math.round(total * 0.85) : total;
+  const pp = Math.round(nightly / guests);
+  document.getElementById('res-total').textContent = '€' + finalTotal;
+  document.getElementById('res-total-sub').textContent = longStay ? '−15% soggiorno lungo' : nights + ' notti × €' + nightly;
+  document.getElementById('res-night').textContent = '€' + nightly;
+  document.getElementById('res-night-sub').textContent = guests > 2 ? '€135 + ' + (guests - 2) + '×€10' : 'tariffa base';
+  document.getElementById('res-pp').textContent = '€' + pp;
+  const grid = document.getElementById('results-grid');
+  const existing = document.querySelector('.result-box.long-stay');
+  if (longStay && !existing) {
+    const box = document.createElement('div');
+    box.className = 'result-box long-stay';
+    box.innerHTML = '<div class="result-label">Sconto applicato</div><div class="result-amount">−15%</div><div class="result-sub">lordo €' + total + '</div>';
+    grid.appendChild(box);
+  } else if (!longStay && existing) {
+    existing.remove();
+  } else if (longStay && existing) {
+    existing.querySelector('.result-sub').textContent = 'lordo €' + total;
+  }
+  buildTable(guests);
+}
+update();
+</script>
+</body>
+</html>
